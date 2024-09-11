@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to the e-Learning platform. Explore our available courses and enhance your skills.">
+    <meta name="Sandesh Patel" content="sandyworld">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <title>E-Learning Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+    <nav>
+        <ul>
+            <h1>E-Learning Platform</h1>
+            <li><a href="#" onclick="showHomePage()">Home</a></li>
+                <li><a href="#" onclick="showCoursePage()">Courses</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Home Section -->
+    <section class="hero" id="homeSection">
+        <h2>Welcome to the e-Learning Platform</h2>
+        <p>Your one-stop destination for skill enhancement.</p>
+        <a href="#" class="cta-button" onclick="showCoursePage()">Explore Courses</a>
+    </section>
+
+    <main>
+        <!-- Course Listing Section -->
+        <section id="courseListSection">
+            <h2>Available Courses</h2>
+            <div class="course-list">
+                <!-- Dynamic content will be added by JavaScript -->
+            </div>
+        </section>
+
+       <!-- Course Detail Section (Initially hidden) -->
+<section id="courseDetailSection" style="display: none;">
+    <div class="course-detail">
+        <h2 id="course-title">Course Title</h2>
+        <p id="course-description">Course Description</p>
+        <button id="enroll-btn">Enroll Now</button onclick=enroll()>
+    </div>
+
+    <!-- Modal for Google Form -->
+    <div id="enrollModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <iframe src="https://forms.gle/mCEVQo8qzRf6748J8" width="100%" height="500px"  frameborder="0"></iframe>
+        </div>
+    </div>
+</section>
+
+        </section>
+    </main>
+<br><br><br><br>
+<footer class="footer">
+    <div class="footer-container">
+        <!-- Footer About Section -->
+        <div class="footer-about">
+            <h4>About Us</h4>
+            <p>e-Learning Platform is dedicated to providing high-quality courses to help you enhance your skills and achieve your career goals. Join us to start learning today!</p>
+        </div>
+
+        <!-- Footer Navigation Links -->
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#" onclick="showCoursePage()">Courses</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="https://wa.me/9399613606">Contact Us</a></li>
+                <li><a href="#">FAQ</a></li>
+            </ul>
+        </div>
+
+        <!-- Footer Contact Info -->
+        <div class="footer-contact">
+            <h4>Contact Us</h4>
+            <p><i class="fas fa-envelope"></i> sandeshpatel.sp.93@gmail.com</p>
+            <p><i class="fas fa-phone-alt"></i> +91 9399613606</p>
+            <p><i class="fas fa-map-marker-alt"></i> 420 kareli St, MP narsinghpur, india</p>
+        </div>
+
+        <!-- Footer Social Media Links -->
+        <div class="footer-social">
+            <h4>Follow Us</h4>
+            <a href="https://x.com/SandeshPat007?t=teYEP7w9aNZYSYKc0sF7dQ&s=09" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.linkedin.com/in/sandesh-patel07?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://www.instagram.com/sandesh_patel007?igsh=MXVjd3JreWNkMzBsYg==" class="social-icon"><i class="fab fa-instagram"></i></a>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2024 e-Learning Platform. All Rights Reserved | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+    </div>
+</footer>
+
+<script src="scripts.js"></script>
+</body>
+</html>
