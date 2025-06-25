@@ -16,7 +16,7 @@ const PasswordResetConfirm = React.lazy(() => import('./pages/PasswordResetConfi
 const PasswordResetComplete = React.lazy(() => import('./pages/PasswordResetComplete.jsx'));
 
 // Use Vite's import.meta.env or fallback to localhost
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://shp-learner.onrender.com';
 
 const getCookie = (name) => {
     let cookieValue = null;

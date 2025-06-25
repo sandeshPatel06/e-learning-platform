@@ -48,7 +48,7 @@ function Login() {
       }
 
       // Optionally, fetch user profile after login
-      const userRes = await fetch('http://localhost:8000/api/users/', {
+      const userRes = await fetch('https://shp-learner.onrender.com/api/users/', {
         credentials: 'include',
       });
       if (!userRes.ok) {

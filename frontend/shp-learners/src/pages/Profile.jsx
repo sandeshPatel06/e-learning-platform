@@ -165,7 +165,7 @@ function Profile({ user, enrollments, navigate }) {
 
       {(currentUser.role === 'admin' || currentUser.role === 'instructor') && (
         <a
-          href="http://localhost:8000/admin"
+          href="https://shp-learner.onrender.com/admin"
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full sm:w-auto mx-auto bg-green-600 text-white hover:bg-green-700 mb-6 px-6 py-3 rounded-md font-medium text-base sm:text-lg text-center transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"

@@ -7,7 +7,7 @@ function Home({ courses: initialCourses, navigate }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch('http://localhost:8000/api/courses/')
+    fetch('https://shp-learner.onrender.com/api/courses/')
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
