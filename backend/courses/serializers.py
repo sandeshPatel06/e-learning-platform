@@ -1,55 +1,43 @@
 from rest_framework import serializers
-from .models import CustomUser, Category, Course, Lesson, Enrollment, Quiz, FAQ
+from .models import Course
+from Enrollment.models import Enrollment
+from Account.models import CustomUser
+from Category.models import Category
+from Lesson.models import Lesson
+from Quiz.models import Quiz
+from FAQ.models import FAQ
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the CustomUser model.
-    Includes all fields.
-    """
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'role', 'bio', 'profile_picture']
+        fields = '__all__'
 
 class CategorySerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Category model.
-    Includes all fields.
-    """
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug']
+        fields = '__all__'
 
 class LessonSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Lesson model.
-    Includes all fields.
-    """
     class Meta:
         model = Lesson
-        fields = ['id', 'title', 'content', 'video_url', 'order', 'created_at']
+        fields = '__all__'
 
 class CourseSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Course model.
-    Includes nested serializers for instructor (CustomUser) and category.
-    Also includes lessons for the course.
-    """
-    instructor = CustomUserSerializer(read_only=True) # Read-only as it's a nested object
-    category = CategorySerializer(read_only=True) # Read-only as it's a nested object
-    lessons = LessonSerializer(many=True, read_only=True) # Nested lessons, many-to-one relationship
+    instructor = CustomUserSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+    lessons = LessonSerializer(many=True, read_only=True)
 
     class Meta:
         model = Course
-        fields = ['id', 'title', 'slug', 'description', 'instructor', 'category',
-                  'created_at', 'updated_at', 'price', 'is_free', 'lessons']
+        fields = '__all__'
 
 class EnrollmentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Enrollment model.
     Includes nested serializers for student (CustomUser) and course.
     """
-    student = CustomUserSerializer(read_only=True) # Read-only
-    course = CourseSerializer(read_only=True) # Read-only
+    student = CustomUserSerializer(read_only=True)
+    course = CourseSerializer(read_only=True)
 
     class Meta:
         model = Enrollment
@@ -62,7 +50,7 @@ class QuizSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Quiz
-        fields = ['id', 'lesson', 'title', 'created_at'] # 'lesson' will be its ID by default
+        fields = ['id', 'lesson', 'title', 'created_at']
 
 class FAQSerializer(serializers.ModelSerializer):
     """

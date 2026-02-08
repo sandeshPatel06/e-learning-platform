@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+# import dj_database_url
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,8 +27,8 @@ ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.s
 
 # Application definition
 INSTALLED_APPS = [
-    'corsheaders',  # <-- Add this line at the top
     'jazzmin',
+    'corsheaders',  # <-- Add this line at the top
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,7 +36,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'courses', # Assuming 'courses' is your app name
+    'courses', 
+    'Account',
+    'Category',
+    'Certificate',
+    'Enrollment',
+    'FAQ',
+    'Lesson',
+    'Question',
+    'Quiz',
+    'Review',
 ]
 
 MIDDLEWARE = [
@@ -86,6 +96,14 @@ DATABASES = {
     }
 }
 
+
+# DATABASES = {
+#     'default': dj_database_url.parse(
+#         "postgresql://sandesh:EreQwn1yHR3YG00BnNfkPqkhJc9zHZTC@dpg-d1gdml7fte5s738gvq6g-a/shplearner",
+#         conn_max_age=600,  # helps with persistent connections
+#         ssl_require=True   # ensure secure connection
+#     )
+# }
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -112,7 +130,7 @@ MEDIA_ROOT = BASE_DIR / 'media' # Directory where user-uploaded media will be st
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
-AUTH_USER_MODEL = 'courses.CustomUser' # Ensure this model exists and is correctly defined in your 'courses' app
+AUTH_USER_MODEL = 'Account.CustomUser' 
 
 # Django REST Framework Settings
 REST_FRAMEWORK = {
@@ -171,16 +189,16 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     "order_with_respect_to": ["courses", "auth"],
 
-    "search_model": ["courses.Course", "courses.CustomUser"],
+    "search_model": ["courses.Course", "Account.CustomUser"],
 
     "topmenu_links": [
         {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "View Live Site", "url": "https://shp-leaner.netlify.app/", "new_window": True},
+        {"name": "View Live Site", "url": "https://shplearner.netlify.app/", "new_window": True},
         {"name": "Support & Docs", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
     ],
 
     "usermenu_links": [
-        {"name": "My Profile", "url": "admin:courses_customuser_1_change", "permissions": ["courses.change_customuser"]},
+        {"name": "My Profile", "url": "admin:Account_customuser_change", "permissions": ["Account.change_customuser"]},
     ],
 
     "user_avatar": "/img/logo.png",
@@ -199,11 +217,18 @@ JAZZMIN_SETTINGS = {
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.Group": "fas fa-users",
-        "courses.CustomUser": "fas fa-user-graduate",
+        "Account.CustomUser": "fas fa-user-graduate",
         "courses.Course": "fas fa-book-open",
-        "courses.Lesson": "fas fa-chalkboard-teacher",
-        "courses.Quiz": "fas fa-question-circle",
-        "courses.Enrollment": "fas fa-user-check",
+        "Category.Category": "fas fa-layer-group",
+        "Certificate.Certificate": "fas fa-certificate",
+        "Enrollment.Enrollment": "fas fa-user-check",
+        "FAQ.FAQ": "fas fa-question",
+        "Lesson.Lesson": "fas fa-chalkboard-teacher",
+        "Question.Question": "fas fa-question-circle",
+        "Question.AnswerChoice": "fas fa-check-circle",
+        "Quiz.Quiz": "fas fa-poll",
+        "Quiz.UserQuizAttempt": "fas fa-user-clock",
+        "Review.Review": "fas fa-star",
     },
     "default_icon_parents": "fas fa-folder-open",
     "default_icon_children": "fas fa-file-alt",

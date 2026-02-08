@@ -73,26 +73,22 @@ function Profile({ user, enrollments, navigate }) {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      let body, headers;
-      if (form.profile_picture instanceof File) {
-        body = new FormData();
-        editableFields.forEach(field => {
-          if (field.key === 'profile_picture' && form.profile_picture) {
+      // Always use FormData for PATCH to support file uploads
+      const body = new FormData();
+      editableFields.forEach(field => {
+        if (field.key === 'profile_picture') {
+          // Only append if a new file is selected
+          if (form.profile_picture instanceof File) {
             body.append('profile_picture', form.profile_picture);
-          } else if (form[field.key] !== undefined && form[field.key] !== null) {
-            body.append(field.key, form[field.key]);
           }
-        });
-        headers = {
-          'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '',
-        };
-      } else {
-        body = JSON.stringify(form);
-        headers = {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '',
-        };
-      }
+        } else if (form[field.key] !== undefined && form[field.key] !== null) {
+          body.append(field.key, form[field.key]);
+        }
+      });
+      const headers = {
+        'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '',
+        // Do NOT set Content-Type when using FormData
+      };
       const res = await fetch(`${BACKEND_URL}/api/users/${currentUser.id}/`, {
         method: 'PATCH',
         headers,

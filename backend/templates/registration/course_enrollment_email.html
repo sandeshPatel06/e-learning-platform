@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Enrollment Confirmation</title>
+    <style>
+        /* Embedded styles derived from index.css for email compatibility */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; /* --font-primary */
+            background-color: #f4f7fa; /* --bg-light */
+            color: #2c3e50; /* --text-dark */
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            width: 100% !important;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff; /* --bg-white */
+            padding: 24px; /* --spacing-lg */
+            border-radius: 8px; /* --radius-md */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* --shadow-md */
+            border: 1px solid #ddd; /* --border */
+        }
+        h2 {
+            color: #2c3e50; /* --primary / --text-dark */
+            font-size: 24px; /* Derived from --font-size-xl */
+            margin-bottom: 16px; /* --spacing-md */
+            line-height: 1.2;
+        }
+        h3 {
+            color: #3498db; /* --secondary */
+            font-size: 20px; /* Derived from --font-size-lg */
+            margin-bottom: 16px; /* --spacing-md */
+            line-height: 1.2;
+        }
+        p {
+            margin-bottom: 16px; /* --spacing-md */
+            font-size: 16px; /* --font-size-md */
+        }
+        a {
+            color: #3498db; /* --secondary */
+            text-decoration: none;
+        }
+        a:hover {
+            color: #5dade2; /* --secondary-light */
+        }
+        .btn {
+            display: inline-block;
+            padding: 16px 32px; /* --spacing-md --spacing-xl */
+            background-color: #27ae60; /* --success */
+            color: #ffffff; /* --text-light */
+            text-decoration: none;
+            border-radius: 8px; /* --radius-md */
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease; /* --transition-fast */
+            border: none;
+            cursor: pointer;
+            font-size: 16px; /* --font-size-md */
+        }
+        .btn:hover {
+            background-color: #229954; /* Slightly darker success */
+        }
+        hr {
+            margin: 32px 0; /* --spacing-xl */
+            border: 0;
+            border-top: 1px solid #ecf0f1; /* --border-light */
+        }
+        .footer {
+            text-align: center;
+            margin-top: 24px; /* --spacing-lg */
+            font-size: 0.875em; /* --font-size-sm */
+            color: #7f8c8d; /* --text-muted */
+            border-top: 1px solid #ecf0f1; /* --border-light */
+            padding-top: 16px; /* --spacing-md */
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 24px; /* --spacing-lg */
+            max-width: 150px;
+            height: auto;
+            border-radius: 16px; /* --radius-lg */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if imgLogo %}
+            <img src="{{ imgLogo }}" alt="Company Logo" class="logo">
+        {% endif %}
+        <h2 style="color: #2c3e50;">Hello {{ user.first_name|default:user.username }},</h2>
+
+        <p>🎉 You have successfully enrolled in the course:</p>
+
+        <h3 style="color: #2980b9;">{{ course.title }}</h3>
+
+        <p>You can now access all course content, including videos, lessons, and quizzes at your convenience.</p>
+
+        <p style="text-align: center;">
+            <a href="{{ course_url }}" class="btn">Click here to access your course</a>
+        </p>
+
+        <hr>
+
+        <p>If you have any questions or need support, feel free to contact us at <a href="mailto:{{ SUPPORT_MAIL }}">{{ SUPPORT_MAIL }}</a>.</p>
+
+        <div class="footer">
+            <p>Best regards,<br><strong>The SHP-Learner Team</strong></p>
+            {% if ADDRESS %}<p>{{ ADDRESS }}</p>{% endif %}
+        </div>
+    </div>
+</body>
+</html>

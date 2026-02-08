@@ -9,16 +9,33 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import CustomUser, Category, Course, Lesson, Enrollment, Quiz, FAQ
+# from .models import CustomUser, Category, Course, Lesson, Enrollment, Quiz, FAQ
+from .models import Course
+from Enrollment.models import Enrollment
+from Account.models import CustomUser
+from Category.models import Category
+from Lesson.models import Lesson
+from Quiz.models import Quiz
+from FAQ.models import FAQ
 from .serializers import (
     CustomUserSerializer, CategorySerializer, CourseSerializer,
     LessonSerializer, EnrollmentSerializer, QuizSerializer, FAQSerializer
 )
 
 # import traceback
-from .utils.mail import trigger_email  
+from utils.mail import trigger_email  
 import os
 import traceback
+
+# --- Custom Permission Helpers ---
+def is_instructor(user):
+    return user.is_authenticated and getattr(user, "role", None) == "instructor"
+
+def is_admin(user):
+    return user.is_authenticated and (getattr(user, "role", None) == "admin" or user.is_superuser)
+
+def is_student(user):
+    return user.is_authenticated and getattr(user, "role", None) == "student"
 
 # --- CustomUser API Views ---
 class CustomUserListCreateAPIView(generics.ListCreateAPIView):
@@ -44,9 +61,16 @@ class CustomUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     def patch(self, request, *args, **kwargs):
         # Only allow users to edit their own profile, or admin
         user = self.get_object()
-        if request.user != user and not request.user.is_superuser:
+        if request.user != user and not is_admin(request.user):
             return Response({'detail': 'Not allowed.'}, status=status.HTTP_403_FORBIDDEN)
         return super().partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        # Only admin or instructor can delete users
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Not allowed.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
 
 
 # --- Category API Views ---
@@ -66,6 +90,19 @@ class CategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView
     serializer_class = CategorySerializer
     permission_classes = [AllowAny] # Adjust permissions as needed (e.g., IsAdminUser)
 
+    def put(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().put(request, *args, **kwargs)
+    def patch(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().patch(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
+
 
 # --- Course API Views ---
 class CourseListCreateAPIView(generics.ListCreateAPIView):
@@ -83,6 +120,19 @@ class CourseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [AllowAny] # Allow anyone to view, but restrict update/delete to instructors/admins
+
+    def put(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().put(request, *args, **kwargs)
+    def patch(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().patch(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
 
 
 # --- Lesson API Views ---
@@ -102,6 +152,19 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = LessonSerializer
     permission_classes = [AllowAny] # Adjust permissions
 
+    def put(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().put(request, *args, **kwargs)
+    def patch(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().patch(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
+
 
 # --- Enrollment API Views ---
 class EnrollmentListCreateAPIView(generics.ListCreateAPIView):
@@ -113,11 +176,11 @@ class EnrollmentListCreateAPIView(generics.ListCreateAPIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
     def get_queryset(self):
-        # For GET, return all enrollments (or filter as needed)
         user = self.request.user
-        # print(Enrollment.objects.filter(student=user).order_by('-created_at'))
         print(user, "is requesting enrollments")
-        return Enrollment.objects.all().order_by('-enrolled_at')
+        if user.is_authenticated:
+            return Enrollment.objects.filter(student=user).order_by('-enrolled_at')
+        return Enrollment.objects.none()
 
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -137,6 +200,12 @@ class EnrollmentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
+    def delete(self, request, *args, **kwargs):
+        # Only admin or instructor can delete enrollments
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
+
 
 # --- Quiz API Views ---
 class QuizListCreateAPIView(generics.ListCreateAPIView):
@@ -155,13 +224,26 @@ class QuizRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = QuizSerializer
     permission_classes = [AllowAny] # Adjust permissions
 
+    def put(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().put(request, *args, **kwargs)
+    def patch(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().patch(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
+
 
 # --- FAQ API Views ---
 class FAQListCreateAPIView(generics.ListCreateAPIView):
     """
     API view to list all FAQs or create a new FAQ.
     """
-    queryset = FAQ.objects.all().order_by('-created_at')
+    queryset = FAQ.objects.filter(is_published=True).order_by('-created_at')
     serializer_class = FAQSerializer
     permission_classes = [AllowAny]
 
@@ -172,6 +254,19 @@ class FAQRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FAQ.objects.all()
     serializer_class = FAQSerializer
     permission_classes = [AllowAny]
+
+    def put(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().put(request, *args, **kwargs)
+    def patch(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().patch(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        if not (is_admin(request.user) or is_instructor(request.user)):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
 
 
 # --- Login API View ---

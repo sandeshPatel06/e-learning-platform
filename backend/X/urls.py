@@ -8,7 +8,8 @@ from courses.views import faq_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
+    path('sandesh', views.index, name='index'),
+    path('', views.frontend, name='index'),
     path('courses/', views.courses, name='courses'),
     path('course/<slug:slug>/', views.course_detail, name='course_detail'),
     path('profile/', views.profile, name='profile'),
