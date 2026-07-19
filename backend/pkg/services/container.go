@@ -164,16 +164,23 @@ func (c *Container) initCache() {
 func (c *Container) initDatabase() {
 	var err error
 	var connection string
+	var driver string
 
 	switch c.Config.App.Environment {
 	case config.EnvTest:
 		// TODO: Drop/recreate the DB, if this isn't in memory?
 		connection = c.Config.Database.TestConnection
+		if strings.HasPrefix(connection, "file:") || strings.Contains(connection, "sqlite") {
+			driver = "sqlite3"
+		} else {
+			driver = c.Config.Database.Driver
+		}
 	default:
 		connection = c.Config.Database.Connection
+		driver = c.Config.Database.Driver
 	}
 
-	c.Database, err = openDB(c.Config.Database.Driver, connection)
+	c.Database, err = openDB(driver, connection)
 	if err != nil {
 		panic(err)
 	}
@@ -196,7 +203,14 @@ func (c *Container) initFiles() {
 
 // initORM initializes the ORM.
 func (c *Container) initORM() {
-	drv := entsql.OpenDB(c.Config.Database.Driver, c.Database)
+	driver := c.Config.Database.Driver
+	if c.Config.App.Environment == config.EnvTest {
+		connection := c.Config.Database.TestConnection
+		if strings.HasPrefix(connection, "file:") || strings.Contains(connection, "sqlite") {
+			driver = "sqlite3"
+		}
+	}
+	drv := entsql.OpenDB(driver, c.Database)
 	c.ORM = ent.NewClient(ent.Driver(drv))
 
 	// Apply runtime hooks to solve import cycles in schema definitions.

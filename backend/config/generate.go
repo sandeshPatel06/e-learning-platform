@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +19,11 @@ const (
 	EnvTest       environment = "test"
 	EnvProduction environment = "prod"
 )
+
+// SwitchEnvironment switches the environment to the specified one.
+func SwitchEnvironment(env environment) {
+	os.Setenv("APP_ENVIRONMENT", string(env))
+}
 
 type (
 	// Config stores complete configuration.
@@ -182,9 +188,31 @@ func (c Config) Validate() error {
 	return nil
 }
 
+// findProjectRoot traverses upward to locate the directory containing go.mod, which is the project root.
+func findProjectRoot() string {
+	curr, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(curr, "go.mod")); err == nil {
+			return curr
+		}
+		parent := filepath.Dir(curr)
+		if parent == curr {
+			return ""
+		}
+		curr = parent
+	}
+}
+
 // GenerateConfigYAML builds the configuration map manually from environment variables
 // and writes it as a flat YAML file (matches the project implementation idea).
 func GenerateConfigYAML(path string) error {
+	root := findProjectRoot()
+	if root != "" && !filepath.IsAbs(path) {
+		path = filepath.Join(root, path)
+	}
 	cfg := map[string]interface{}{
 		"HTTP_HOSTNAME":         getEnv("HTTP_HOSTNAME", ""),
 		"HTTP_PORT":             getEnvAsInt("HTTP_PORT", 8000),
@@ -301,10 +329,17 @@ func buildPostgresURL() string {
 }
 
 func loadDotEnv(path string) {
-	bytes, err := os.ReadFile(path)
+	root := findProjectRoot()
+	if root == "" {
+		return
+	}
+
+	filePath := filepath.Join(root, path)
+	bytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return
 	}
+
 	lines := strings.Split(string(bytes), "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -314,6 +349,9 @@ func loadDotEnv(path string) {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) == 2 {
 			key := strings.TrimSpace(parts[0])
+			if _, exists := os.LookupEnv(key); exists {
+				continue
+			}
 			value := strings.TrimSpace(parts[1])
 			value = strings.Trim(value, `"'`)
 			os.Setenv(key, value)
